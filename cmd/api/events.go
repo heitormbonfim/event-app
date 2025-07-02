@@ -53,7 +53,7 @@ func (app *application) getEvent(c *gin.Context) {
 
 	event, err := app.models.Events.Get(id)
 
-	if err != nil {
+	if event != nil {
 		c.JSON(http.StatusNotFound, gin.H{
 			"error": "Event not found",
 		})

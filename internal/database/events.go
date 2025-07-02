@@ -30,8 +30,8 @@ func (m *EventModel) Insert(event *Event) error {
 		query,
 		event.OwnerId,
 		event.Name,
-		event.Date,
-		event.Location,
+		event.Description,
+		event.Date, event.Location,
 	).Scan(&event.Id)
 }
 
