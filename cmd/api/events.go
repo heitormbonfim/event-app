@@ -136,3 +136,102 @@ func (app *application) deleteEvent(c *gin.Context) {
 
 	c.JSON(http.StatusNoContent, nil)
 }
+
+func (app *application) addAttendeeToEvent(c *gin.Context) {
+	eventId, err := strconv.Atoi(c.Param("id"))
+
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "Invalid event id",
+		})
+		return
+	}
+
+	userId, err := strconv.Atoi(c.Param("userId"))
+
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "Invalid user id",
+		})
+		return
+	}
+
+	event, err := app.models.Events.Get(eventId)
+
+	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{
+			"error": "Event not found",
+		})
+		return
+	}
+
+	userToAdd, err := app.models.Users.Get(userId)
+
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": "Failed to retrieve user",
+		})
+		return
+	}
+
+	if userToAdd == nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "User not found",
+		})
+		return
+	}
+
+	existingAttendee, err := app.models.Attendees.GetByEventAndAttendee(event.Id, userToAdd)
+
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": "Failed to retrieve attendeee",
+		})
+		return
+	}
+
+	if existingAttendee != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "Attendee already exists",
+		})
+		return
+	}
+
+	attendee := database.Attendee{
+		EventId: event.Id,
+		UserId:  userToAdd.Id,
+	}
+
+	_, err = app.models.Attendees.Insert(&attendee)
+
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": "Failed to add attendeee",
+		})
+		return
+	}
+
+	c.JSON(http.StatusCreated, attendee)
+}
+
+func (app *application) getAttendeesForEvent(c *gin.Context) {
+	id, err := strconv.Atoi(c.Param("id"))
+
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "Invalid event id",
+		})
+		return
+	}
+
+	users, err := app.models.Attendees.GetAttendeesByEvent(id)
+
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": "Failed to retrieve attendees for events",
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, users)
+}
