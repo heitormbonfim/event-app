@@ -80,7 +80,7 @@ func (m *EventModel) Get(id int) (*Event, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
 
-	query := "SELECT * FROM events WHERE id = $1"
+	query := `SELECT * FROM events WHERE id = $1`
 
 	var event Event
 
@@ -108,7 +108,10 @@ func (m *EventModel) Update(event *Event) error {
 
 	defer cancel()
 
-	query := "UPDATE events SET name = $1, description = $2, date = $3, location = $4 WHERE id = $5"
+	query := `--sql
+	UPDATE events SET name = $1, description = $2, date = $3, location = $4 
+	WHERE id = $5
+	`
 
 	_, err := m.DB.ExecContext(
 		ctx,
@@ -131,7 +134,9 @@ func (m *EventModel) Delete(id int) error {
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
 
-	query := "DELETE FROM events WHERE id = $1"
+	query := `--sql
+	DELETE FROM events WHERE id = $1
+	`
 
 	_, err := m.DB.ExecContext(ctx, query, id)
 
