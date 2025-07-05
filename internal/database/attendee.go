@@ -130,6 +130,7 @@ func (m *AttendeeModel) GetEventsByAttendee(attendeeId int) ([]*Event, error) {
 		WHERE a.user_id = $1
 	`
 	rows, err := m.DB.QueryContext(ctx, query, attendeeId)
+
 	if err != nil {
 		return nil, err
 	}
@@ -137,15 +138,24 @@ func (m *AttendeeModel) GetEventsByAttendee(attendeeId int) ([]*Event, error) {
 	defer rows.Close()
 
 	var events []*Event
+
 	for rows.Next() {
 		var event Event
-		err := rows.Scan(&event.Id, &event.OwnerId, &event.Name, &event.Description, &event.Date, &event.Location)
+		err := rows.Scan(
+			&event.Id,
+			&event.OwnerId,
+			&event.Name,
+			&event.Description,
+			&event.Date,
+			&event.Location,
+		)
+
 		if err != nil {
 			return nil, err
 		}
+
 		events = append(events, &event)
 	}
 
 	return events, nil
-
 }
