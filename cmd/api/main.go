@@ -6,9 +6,19 @@ import (
 	"event-app/internal/env"
 	"log"
 
+	_ "event-app/docs"
+
 	_ "github.com/joho/godotenv/autoload"
 	_ "github.com/mattn/go-sqlite3"
 )
+
+// @title Event APP
+// @version 1.0
+// @description An app to save events
+// @securityDefinitions.apikey BearerAuth
+// @in header
+// @name Authorization
+// @description Enter your bearer token in the format **Bearer &lt;token&gt;**
 
 type application struct {
 	port      int
